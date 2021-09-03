@@ -8,7 +8,7 @@ github： https://github.com/yangtingxiao
 
 ================Loon==============
 [Script]
-cron "10 0-23/1 * * *" script-path=hwatt_start.js,tag=watt启动服务
+cron "55 0-23/1 * * *" script-path=hwatt_start.js,tag=watt启动服务
 
  */
 const $ = new Env('Watt');
@@ -37,8 +37,7 @@ function start()
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "cross-site",
         "use-agent": "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36 Edg/92.0.902.84"
-      },
-      body:{}
+      }
     }
     $.post(req, async (err, resp, data) => {
       try {
