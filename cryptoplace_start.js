@@ -5,7 +5,7 @@
 
 ================Loon==============
 [Script]
-cron "55 15 * * *" script-path=cryptoplace_start.js,tag=cryptoplace每天开始挖坑
+cron "55 0-23/8 * * *" script-path=cryptoplace_start.js,tag=cryptoplace每天开始挖坑
 
  */
 const $ = new Env('cryptoplace_start');
