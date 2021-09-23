@@ -112,7 +112,7 @@ function start () {
     var timeStr = escape(Format("yyyy-MM-dd+HH:mm:ss",new Date()));
     let req = {
       url: `https://cryptoplace.cloud/startmining`,
-      body: 'chain=XMR',
+      body: 'chain=DOGE',
       referrer: "https://cryptoplace.cloud",
       headers: {
         "accept": "application/json, text/javascript, */*; q=0.01",
