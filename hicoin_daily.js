@@ -1,33 +1,97 @@
-﻿/*
+/*
 
-活动入口：https://cryptoplace.cloud/ 每天开始挖坑
+活动入口：https://web.hi.com/ 每天领币
 
 
 ================Loon==============
 [Script]
-cron "55 0-23/2 * * *" script-path=cryptoplace_start.js,tag=cryptoplace每天开始挖坑
+cron "55 0-23/8 * * *" script-path=hicoin_start.js,tag= 每天领币
 
  */
-const $ = new Env('cryptoplace_start');
-let requestCookies = '';
+const $ = new Env('hicoin_start');
+const notify = $.isNode() ? require('./sendNotify') : '';
 
-main();
-
-async function main () {
-
-  await getCookie("https://cryptoplace.cloud");
-  await login();
-  await getCookie("https://cryptoplace.cloud/cabinet");
-  await start();
-  await getCookie("https://cryptoplace.cloud/cabinet");
+const topicAnswers = ['成功', '前方', '朋友', '可以', '漂亮', '机智', 'hi'];
+let cookiesArr = [];
+if ($.isNode()) {
+  if (process.env.HIUSERS) {
+    if (process.env.HIUSERS.indexOf('&') > -1) {
+      cookiesArr = process.env.HIUSERS.split('&');
+    } else if (process.env.HIUSERS.indexOf('\n') > -1) {
+      cookiesArr = process.env.HIUSERS.split('\n');
+    } else {
+      cookiesArr = [process.env.HIUSERS];
+    }
+  };
 }
 
-function getCookie(url){
+let requestCookies = '';
+let token = '';
+!(async () => {
+  if (!cookiesArr[0]) {
+    $.msg($.name, '【提示】请先设置账号');
+    return;
+  }
+  for (let i = 0; i < cookiesArr.length; i++) {
+    if (cookiesArr[i]) {
+      requestCookies = "";
+      token = "";
+
+      cookie = cookiesArr[i].split(';');
+
+      console.log(`\n******开始【京东账号${cookie[0]}】*********\n`);
+
+      await getCookie("https://web.hi.com");
+      //登录
+      let resultData = await postUrl('https://web.hi.com/api/app/user/login', `{"mobileNo":"${cookie[0]}","verifyCode":"","password":"${cookie[1]}"}`);
+      if (!resultData || resultData.msg != 'success' || !resultData.data || !resultData.data.token) {
+        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 登录失败 jd`)
+        console.log(`出错了 ${resultData}`);
+        continue;
+      }
+
+      token = resultData.data.token;
+     
+      //保存登录日志
+      await postUrl(`https://web.hi.com/api/app/saveLoginLog`, `{"channelId":"Web App","phoneDes":"PC Windows 10 x64"}`);
+
+      //判断是否已经领过
+      resultData = await postUrl('https://web.hi.com/api/app/checkHasSign', '{}');
+      if (resultData && resultData.data) {
+        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 已经领过 jd`)
+        console.log(`已经领过`);
+        continue;
+      }
+
+      //开始签到
+      resultData = await getUrl("https://web.hi.com/api/app/getNowTopic");
+      if (!resultData || resultData.msg != 'success' || !resultData.data) {
+        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 出错了 ${resultData} jd`)
+        console.log(`出错了 ${resultData}`);
+        continue;
+      }
+      let topicId = resultData.data.topicId;
+
+      //签到
+      resultData = await postUrl("https://web.hi.com/api/app/signIn", `{"topicId":${topicId},"topicAnswer":"${topicAnswers[randomNumber(0, topicAnswers.length)]}"}`);
+      if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 成功 ${resultData} jd`)
+    }
+  }
+})()
+  .catch((e) => {
+    $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+  })
+  .finally(() => {
+    $.done();
+  })
+
+
+function getCookie (url) {
   return new Promise(resolve => {
     var timeStr = escape(Format("yyyy-MM-dd+HH:mm:ss", new Date()));
     let req = {
       url: url,
-      referrer: "https://cryptoplace.cloud",
+      referrer: "https://web.hi.com",
       headers: {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7",
@@ -37,7 +101,7 @@ function getCookie(url){
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-origin",
-        "Origin": "https://cryptoplace.cloud"
+        "Origin": "https://web.hi.com"
       }
     }
     $.get(req, async (err, resp, data) => {
@@ -62,13 +126,13 @@ function getCookie(url){
   })
 }
 
-function login () {
+function login (username, password) {
   return new Promise(resolve => {
     var timeStr = escape(Format("yyyy-MM-dd+HH:mm:ss", new Date()));
     let req = {
-      url: `https://cryptoplace.cloud/users/login`,
-      referrer: "https://cryptoplace.cloud",
-      body: 'username=sistt001%40protonmail.com&password=NQi%3Ap9VxZyYPnyW',
+      url: `https://web.hi.com/api/app/user/login`,
+      referrer: "https://web.hi.com",
+      body: `{"mobileNo":"${username}","verifyCode":"","password":"${password}"}`,
       headers: {
         "accept": "application/json, text/javascript, */*; q=0.01",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7",
@@ -78,9 +142,55 @@ function login () {
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-origin",
-        "Origin": "https://cryptoplace.cloud",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "x-requested-with": "XMLHttpRequest",
+        "Origin": "https://web.hi.com",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Cookie": requestCookies
+      }
+    }
+    $.post(req, async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+        } else {
+          var responseCookies = resp.headers['set-cookie'] || [];
+          for (var i = 0; i < responseCookies.length; i++) {
+            var oneCookie = responseCookies[i];
+            oneCookie = oneCookie.split(';');
+            requestCookies = requestCookies + oneCookie[0] + ';';
+          }
+          var jsonData = JSON.parse(data);
+          console.log(`${data}`)
+          if (jsonData.msg == 'success')
+            token = jsonData.data.token;
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
+
+function postUrl (url, postdata) {
+  return new Promise(resolve => {
+    var timeStr = escape(Format("yyyy-MM-dd+HH:mm:ss", new Date()));
+    let req = {
+      url: `${url}`,
+      referrer: "https://web.hi.com",
+      body: `${postdata}`,
+      headers: {
+        "accept": "application/json, text/javascript, */*; q=0.01",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7",
+        "sec-ch-ua": "\"Microsoft Edge\";v=\"93\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"93\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "Origin": "https://web.hi.com",
+        "Content-Type": "application/json;charset=UTF-8",
+        "token": `${token}`,
         "Cookie": requestCookies
       }
     }
@@ -100,53 +210,59 @@ function login () {
       } catch (e) {
         $.logErr(e, resp)
       } finally {
-        resolve();
+        resolve(JSON.parse(data));
       }
     })
   })
 }
 
-function start () {
-
+function getUrl (url) {
   return new Promise(resolve => {
-    var timeStr = escape(Format("yyyy-MM-dd+HH:mm:ss",new Date()));
     let req = {
-      url: `https://cryptoplace.cloud/startmining`,
-      body: 'chain=DOGE',
-      referrer: "https://cryptoplace.cloud",
+      url: `${url}`,
+      referrer: "https://web.hi.com",
       headers: {
         "accept": "application/json, text/javascript, */*; q=0.01",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47",
         "sec-ch-ua": "\"Microsoft Edge\";v=\"93\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"93\"",
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": "\"Windows\"",
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-origin",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Origin": "https://cryptoplace.cloud",
-        "x-requested-with": "XMLHttpRequest",
+        "Origin": "https://web.hi.com",
+        "Content-Type": "application/json;charset=UTF-8",
+        "token": `${token}`,
         "Cookie": requestCookies
       }
     }
-    $.post(req, async (err, resp, data) => {
+    $.get(req, async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
         } else {
+          var responseCookies = resp.headers['set-cookie'] || [];
+          for (var i = 0; i < responseCookies.length; i++) {
+            var oneCookie = responseCookies[i];
+            oneCookie = oneCookie.split(';');
+            requestCookies = requestCookies + oneCookie[0] + ';';
+          }
           console.log(`${data}`)
         }
       } catch (e) {
         $.logErr(e, resp)
       } finally {
-        resolve();
+        resolve(JSON.parse(data));
       }
     })
   })
 }
 
-function Format (fmt,date) {
+function randomNumber (min = 0, max = 100) {
+  return Math.min(Math.floor(min + Math.random() * (max - min)), max);
+}
+
+function Format (fmt, date) {
   var o = {
     "M+": date.getMonth() + 1, //月份
     "d+": date.getDate(), //日
