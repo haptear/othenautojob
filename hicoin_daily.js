@@ -32,6 +32,7 @@ let token = '';
     $.msg($.name, '【提示】请先设置账号');
     return;
   }
+  let allMessage = "";
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       requestCookies = "";
@@ -45,20 +46,20 @@ let token = '';
       //登录
       let resultData = await postUrl('https://web.hi.com/api/app/user/login', `{"mobileNo":"${cookie[0]}","verifyCode":"","password":"${cookie[1]}"}`);
       if (!resultData || resultData.msg != 'success' || !resultData.data || !resultData.data.token) {
-        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 登录失败 jd`)
+        allMessage = allMessage + `${cookie[0]} 登录失败 \n`
         console.log(`出错了 ${resultData}`);
         continue;
       }
 
       token = resultData.data.token;
-     
+
       //保存登录日志
       await postUrl(`https://web.hi.com/api/app/saveLoginLog`, `{"channelId":"Web App","phoneDes":"PC Windows 10 x64"}`);
 
       //判断是否已经领过
       resultData = await postUrl('https://web.hi.com/api/app/checkHasSign', '{}');
       if (resultData && resultData.data) {
-        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 已经领过 jd`)
+        allMessage = allMessage + `${cookie[0]} 已经领过 \n`
         console.log(`已经领过`);
         continue;
       }
@@ -66,7 +67,7 @@ let token = '';
       //开始签到
       resultData = await getUrl("https://web.hi.com/api/app/getNowTopic");
       if (!resultData || resultData.msg != 'success' || !resultData.data) {
-        if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 出错了 ${resultData} jd`)
+        allMessage = allMessage + `${cookie[0]} 出错了 ${JSON.stringify(resultData)} \n`
         console.log(`出错了 ${resultData}`);
         continue;
       }
@@ -74,9 +75,11 @@ let token = '';
 
       //签到
       resultData = await postUrl("https://web.hi.com/api/app/signIn", `{"topicId":${topicId},"topicAnswer":"${topicAnswers[randomNumber(0, topicAnswers.length)]}"}`);
-      if ($.isNode()) await notify.sendNotify($.name, `${cookie[0]} 成功 ${resultData} jd`)
+      allMessage = allMessage + `${cookie[0]} 成功 ${JSON.stringify(resultData)} \n`
     }
   }
+
+  if ($.isNode()) await notify.sendNotify($.name, `${allMessage} jd`)
 })()
   .catch((e) => {
     $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
