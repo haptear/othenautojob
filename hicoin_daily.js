@@ -2,12 +2,18 @@
 
 活动入口：https://web.hi.com/ 每天领币
 
+还没注册的朋友,可以使用下方的邀请注册
+https://hi.com/80vip
+
+支持多账号,多账号间使用&分割,格式为'账号1;密码&账号2;密码2'
+export HIUSERS = '+8613999999999;123456&=+8613888888888;123456'
 
 ================Loon==============
 [Script]
 cron "55 0-23/8 * * *" script-path=hicoin_start.js,tag= 每天领币
 
  */
+
 const $ = new Env('hicoin_start');
 const notify = $.isNode() ? require('./sendNotify') : '';
 
