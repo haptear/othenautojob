@@ -1,6 +1,8 @@
 var allTasks = ['温暖生活', '实时剧情', '朵朵浪花', '闪光热点', '阳光生活', '热点天下', '资讯播报'];
 let taskText = '';
 
+// 美好生活 debug
+
 start();
 
 function start () {
@@ -145,16 +147,17 @@ function viewTask (task) {
 
     closeAd();
 
-    var link = boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.view.View').clickable().findOnce()
-      || boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.widget.Image').clickable().findOnce();
-
+    var l1 = boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.view.View').clickable().findOnce();
+    var l2 = boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.widget.Image').clickable().findOnce();
+    var link = l1 || l2;
     if (link == undefined) {
       console.log(' ', i, '未找到连接');
     }
     else {
       let linkText = link.text() || link.contentDescription || "";
       linkText = linkText.length > 8 ? linkText.substring(0, 8) : linkText;
-      console.log(' ', i, "link ", linkText.length, "  ", linkText);
+      // console.log(' ', i, "link ", linkText.length, "  ", linkText);
+      console.log(' ', i, "link ", linkText);
 
       if (linkText.indexOf && linkText.indexOf('广告') > -1) {
         continue;

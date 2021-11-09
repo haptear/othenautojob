@@ -58,16 +58,15 @@ function ssz () {
     back();
   }
 
-  var goBtn = text('搜索赚').clickable().findOnce();
+  var goBtn = text('搜索赚').findOnce();
   if (goBtn == undefined) {
     console.warn('未找到搜索赚进入按钮,结束');
     return;
   }
 
   randomClickObject(goBtn);
-  // goBtn.click();
-  sleep(3000);
 
+  sleep(3000);
 
   //等待页面出现
   if (text('去搜索').findOne(18 * 1000) == undefined) {
@@ -76,7 +75,7 @@ function ssz () {
   }
 
   //任务列表
-  var items = text('去搜索').clickable().find();
+  var items = text('去搜索').find();
   if (items == undefined || items.length == 0) {
     console.warn('未找到去搜索的任务');
     // back();
@@ -86,31 +85,64 @@ function ssz () {
   console.warn("开始'去搜索'任务");
   for (let index = 0; index < items.length; index++) {
 
-    var item = text('去搜索').clickable().findOnce(index);
+    if (text('去搜索').findOnce() == undefined) {
+      console.warn(" ", index, "未在 去搜索 页面,后退");
+      back();
+      sleep(2000);
+    }
+
+    var item = text('去搜索').findOnce(index);
     if (item == undefined) {
       console.warn(" ", index, "未找到");
+      sleep(500);
       continue;
     }
 
-    console.warn(" ", index, "去搜索任务 ", item.parent().child(1).text());
+    console.warn(" ", index, "去搜索任务 ", item.parent().child(0).text());
 
     randomClickObject(item);
 
-    if (text('step3').findOne(18 * 1000) != undefined) {
+    sleep(2000);
+
+    if (textContains('今日热词').findOne(5 * 1000) != undefined) {
       sszViewTask();
     }
+    else {
+      console.warn(" ", index, "未找到定位对象 今日热词 结束");
+    }
   }
+
+  console.warn("结束'去搜索'任务");
+
 }
 
 function sszViewTask () {
+  console.log("  开始sszViewTask");
   for (var i = 0; i < 12; i++) {
 
-    var task = className('android.view.View').clickable().filter(function (v) {
-      return v.text().length > 3;
+    //定位对象
+    var pObject = textContains('今日热词').findOne(5 * 1000);
+    if (pObject == undefined) {
+      console.log("  ", i, "未找到定位对象 今日热词");
+      back();
+      console.log("  ", i, '后退');
+    }
+
+    let minY = 0
+    try {
+      minY = pObject.bounds().bottom + 5;
+    } catch (error) {
+      console.log("  ", i, pObject);
+      continue;
+    }
+
+    var task = className('android.view.View').filter(function (v) {
+      return v.text().length > 3 && v.bounds().bottom > minY;
     }).findOnce();
 
     if (task == undefined) {
       console.log("  ", i, "未找到");
+      sleep(500);
       continue;
     }
 
@@ -118,14 +150,18 @@ function sszViewTask () {
     randomClickObject(task);
     sleep(1000);
 
-    if (text('step3').findOnce() == undefined) {
+    if (textContains('今日热词').findOnce(3 * 1000) == undefined) {
+      console.log("  ", i, '后退');
       back();
       sleep(2000);
+    }
+    else {
+      console.warn("在 今日热词 不后退");
     }
   }
 
   //退回到主界面
-  if (text('step3').findOnce() != undefined) {
+  if (textContains('今日热词').findOnce(3 * 1000) != undefined) {
     back();
     sleep(2000);
   }
