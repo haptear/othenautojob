@@ -1,5 +1,5 @@
-var allTasks = ['实时剧情', '朵朵浪花', '闪光热点', '阳光生活', '热点天下', '资讯播报'];
-
+var allTasks = ['温暖生活', '实时剧情', '朵朵浪花', '闪光热点', '阳光生活', '热点天下', '资讯播报'];
+let taskText = '';
 
 start();
 
@@ -18,9 +18,6 @@ function start () {
 //看看赚
 function kkz () {
   //初始化时要忽略的任务
-
-  let taskText = '';
-
   for (var i = 1; i < 50; i++) {
     sleep(1000);
     if (i % 5 == 0)
@@ -87,7 +84,7 @@ function getTask (i) {
     let task = tasks[index];
     taskText = '';
     let par = task.parent();
-    if (par && par.childCount() >=3) {
+    if (par && par.childCount() >= 3) {
       let statusText = par.child(2).text();
       //忽略已完成
       if (statusText != '去完成' && statusText != '进行中')
@@ -100,14 +97,11 @@ function getTask (i) {
       continue;
     }
 
-    console.log(1);
     //还未处理过
     if (allTasks.indexOf(taskText) > -1) {
-    console.log(2);
-    //console.log("  ", index, "已经处理的任务 ", taskText);
+      //console.log("  ", index, "已经处理的任务 ", taskText);
     }
     else {
-      console.log(3);
       allTasks.push(taskText);
       return task;
     }
@@ -160,8 +154,8 @@ function viewTask (task) {
     else {
       let linkText = link.text() || link.contentDescription || "";
       linkText = linkText.length > 8 ? linkText.substring(0, 8) : linkText;
+      console.log(' ', i, "link ", linkText.length, "  ", linkText);
 
-      console.log(' ', i, "link ", linkText);
       if (linkText.indexOf && linkText.indexOf('广告') > -1) {
         continue;
       }
