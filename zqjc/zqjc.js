@@ -3,7 +3,7 @@ start();
 
 function start () {
   auto.waitFor()
-  var appName = "cn.youth.news";
+  var appName = "com.ldzs.jcweather";
   if (launch(appName)) {
     console.info("启动中青看点");
   }
@@ -46,17 +46,24 @@ function getById (maxIndex, name) {
 function viewTask () {
   for (var i = 1; i < 500; i++) {
     sleep(1000);
-    if (i % 10 == 0)
+    
+    if (i % 10== 0)
       console.clear();
+
+    if (getById(3, "akl") == undefined) {
+      console.log(i, "未在文章列表,后退!");
+      back();
+      continue;
+    }
 
     console.log("下滑!")
     gesture(400, [520, 1550], [520, 450]);
     sleep(1000);
-    var y1 = id("ah5").className("android.widget.TextView").findOnce(1);
-    var y2 = id("a03").className("android.widget.LinearLayout").findOnce(1);
-    var y3 = id("ah5").className("android.widget.TextView").findOnce(0);
-    var y4 = id("a03").className("android.widget.LinearLayout").findOnce(0);
-    var y5 = id("ail").className("android.widget.TextView").findOnce(0);
+    var y1 = packageName('com.ldzs.jcweather').id("apn").className("android.widget.TextView").findOnce(1);
+    var y2 = packageName('com.ldzs.jcweather').id("a58").className("android.widget.LinearLayout").findOnce(1);
+    var y3 = packageName('com.ldzs.jcweather').id("apn").className("android.widget.TextView").findOnce(0);
+    var y4 = packageName('com.ldzs.jcweather').id("a58").className("android.widget.LinearLayout").findOnce(0);
+    var y5 = packageName('com.ldzs.jcweather').id("abw").className("android.widget.RelativeLayout").findOnce(0);
 
     // console.log("y1=", (y1 == undefined), "y2=", (y2 == undefined), "y3=", (y3 == undefined), "y4=", (y4 == undefined), "y5=", (y5 == undefined))
     var youth = y1 || y2 || y3 || y4 || y5;
@@ -79,7 +86,8 @@ function viewTask () {
       if (i < 50) {
         swap(i);
       }
-      var taskBtn = getById(4, 'cn.youth.news:id/x8');
+
+      var taskBtn = getById(4, 'com.ldzs.jcweather:id/x8');
       if (taskBtn == undefined)
         back();
     } catch (error) {

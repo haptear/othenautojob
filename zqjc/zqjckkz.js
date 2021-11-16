@@ -1,13 +1,12 @@
-var allTasks = [];
+var allTasks = ['封面新闻'];
 let taskText = '';
 
 // 美好生活 debug
 
 start();
-
 function start () {
   auto.waitFor()
-  var appName = "cn.youth.news";
+  var appName = "com.ldzs.jcweather";
   if (launch(appName)) {
     console.info("启动中青看点");
   }
@@ -21,7 +20,6 @@ function start () {
 function kkz () {
   //初始化时要忽略的任务
   let rct;
-
   for (var i = 1; i < 50; i++) {
     sleep(1000);
     if (i % 5 == 0)
@@ -33,6 +31,7 @@ function kkz () {
     }
 
     try {
+
       var task = getTask(i);
       if (task == undefined) {
         console.log(i, '未获取到任务');
@@ -47,12 +46,6 @@ function kkz () {
 
       console.warn(' 任务 ' + taskText + '  成功');
 
-      // if (!viewTask(task)) {
-      //   console.warn(' 任务 ' + taskText + ' 失败');
-      // }
-      // else {
-      //   console.warn(' 任务 ' + taskText + '  成功');
-      // }
 
     } catch (error) {
       console.error(error.message);
@@ -65,6 +58,8 @@ function kkz () {
     }
 
   }
+
+  console.warn(' 任务结束');
 }
 
 function getById (maxIndex, name) {
@@ -84,7 +79,7 @@ function getTask (i) {
   // var task2 = text('去完成').find();
   // var tasks = task1.concat(task2);
   //查找所有任务
-  var tasks = textContains('0青豆').find();
+  var tasks = textContains('0金币').find();
 
   console.log(i, "找到的任务数据 ", tasks.length);
 
@@ -126,7 +121,7 @@ function scorrToTask (y) {
 }
 
 function backViewTask () {
-  if (id('cz').findOnce() == undefined)
+  if (id('e1').findOnce() == undefined)
     return;
 
   var close = id('ahp').clickable().findOnce();
@@ -153,8 +148,8 @@ function viewTask (task) {
 
     closeAd();
 
-    var l1 = boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.view.View').clickable().findOnce();
-    var l2 = boundsInside(10, 300, device.width, device.height).packageName('cn.youth.news').className('android.widget.Image').clickable().findOnce();
+    var l1 = boundsInside(10, 300, device.width, device.height).packageName('com.ldzs.jcweather').className('android.view.View').clickable().findOnce();
+    var l2 = boundsInside(10, 300, device.width, device.height).packageName('com.ldzs.jcweather').className('android.widget.Image').clickable().findOnce();
     var link = l1 || l2;
     if (link == undefined) {
       console.log(' ', i, '未找到连接');
