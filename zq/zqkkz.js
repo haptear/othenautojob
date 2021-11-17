@@ -21,8 +21,9 @@ function start () {
 function kkz () {
   //初始化时要忽略的任务
   let rct;
-
+  let needBack = false;
   for (var i = 1; i < 50; i++) {
+    needBack = false;
     sleep(1000);
     if (i % 5 == 0)
       console.clear();
@@ -38,6 +39,8 @@ function kkz () {
         console.log(i, '未获取到任务');
         continue;
       }
+
+      needBack = true;
 
       console.log(i, '开始任务 ' + taskText);
 
@@ -58,7 +61,8 @@ function kkz () {
       console.error(error.message);
     }
     finally {
-      backViewTask();
+      if (needBack)
+        backViewTask();
       sleep(1000);
       if (rct)
         scorrToTask(rct.centerY());

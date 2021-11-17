@@ -20,14 +20,18 @@ function start () {
 function kkz () {
   //初始化时要忽略的任务
   let rct;
+  let needBack = false;
   for (var i = 1; i < 50; i++) {
     sleep(1000);
+    needBack = false;
+
     if (i % 5 == 0)
       console.clear();
 
     if (text('看看赚').findOnce() == undefined) {
       console.log(i, '未在看看赚页面,后退');
       back();
+      sleep(1000);
     }
 
     try {
@@ -38,6 +42,7 @@ function kkz () {
         continue;
       }
 
+      needBack = true;
       console.log(i, '开始任务 ' + taskText);
 
       rct = task.bounds();
@@ -51,7 +56,8 @@ function kkz () {
       console.error(error.message);
     }
     finally {
-      backViewTask();
+      if (needBack)
+        backViewTask();
       sleep(1000);
       if (rct)
         scorrToTask(rct.centerY());
@@ -121,14 +127,17 @@ function scorrToTask (y) {
 }
 
 function backViewTask () {
-  if (id('e1').findOnce() == undefined)
+  if (text('看看赚').findOnce() != undefined) {
     return;
+  }
 
   var close = id('ahp').clickable().findOnce();
   if (close != undefined)
     close.click();
-  else
+  else {
+    console.log("  backViewTask后退")
     back();
+  }
 }
 
 //进入世界任务页面
