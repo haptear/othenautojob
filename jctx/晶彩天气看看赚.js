@@ -8,7 +8,7 @@ function start () {
   auto.waitFor()
   var appName = "com.ldzs.jcweather";
   if (launch(appName)) {
-    console.info("启动中青看点");
+    console.info("启动晶彩天气");
   }
   console.show();
 
